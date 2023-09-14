@@ -1,0 +1,63 @@
+{
+    "call": "/home/sina/miniconda3/bin/cellatlas build -o atac-lll atac-dig -m atac -s spec_joint.yaml ../dogmaseq-dig/spec_joint.yaml -fa reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz -fb tag_0419_feature_barcodes.txt -g reference/Homo_sapiens.GRCh38.110.gtf.gz fastqs/atac_R1-lll.fastq.gz fastqs/atac_R2-lll.fastq.gz fastqs/atac_R3-lll.fastq.gz ../dogmaseq-dig/fastqs/atac_R1-dig.fastq.gz ../dogmaseq-dig/fastqs/atac_R2-dig.fastq.gz ../dogmaseq-dig/fastqs/atac_R3-dig.fastq.gz",
+    "start_time": "Thu Aug 31 09:37:42 2023 ",
+    "fastqs": [
+        {
+            "file": "fastqs/atac_R1-lll.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/atac_R2-lll.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/atac_R3-lll.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "../dogmaseq-dig/fastqs/atac_R1-dig.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "../dogmaseq-dig/fastqs/atac_R2-dig.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "../dogmaseq-dig/fastqs/atac_R3-dig.fastq.gz",
+            "source": ""
+        }
+    ],
+    "seqspec": "../dogmaseq-dig/spec_joint.yaml",
+    "genome_fasta": "reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+    "genome_gtf": "reference/Homo_sapiens.GRCh38.110.gtf.gz",
+    "commands": [
+        {
+            "ref": [
+                "minimap2 -d atac-dig/ref.mmi reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+                "minimap2 -o atac-dig/genome.0.sam -a -x sr -t 32 atac-dig/ref.mmi fastqs/atac_R1-lll.fastq.gz fastqs/atac_R3-lll.fastq.gz",
+                "samtools view -@ 8 -o atac-dig/genome.u.0.bam -b atac-dig/genome.0.sam",
+                "samtools sort -@ 8 -o atac-dig/genome.0.bam -n -m 8G atac-dig/genome.u.0.bam",
+                "Genrich -t atac-dig/genome.0.bam -o atac-dig/genome.0.bed -f atac-dig/genome_peaks.0.log -v",
+                "cat atac-dig/genome.0.bed | bedtools sort | bedtools merge > atac-dig/peaks.0.bed",
+                "minimap2 -o atac-dig/genome.1.sam -a -x sr -t 32 atac-dig/ref.mmi ../dogmaseq-dig/fastqs/atac_R1-dig.fastq.gz ../dogmaseq-dig/fastqs/atac_R3-dig.fastq.gz",
+                "samtools view -@ 8 -o atac-dig/genome.u.1.bam -b atac-dig/genome.1.sam",
+                "samtools sort -@ 8 -o atac-dig/genome.1.bam -n -m 8G atac-dig/genome.u.1.bam",
+                "Genrich -t atac-dig/genome.1.bam -o atac-dig/genome.1.bed -f atac-dig/genome_peaks.1.log -v",
+                "cat atac-dig/genome.1.bed | bedtools sort | bedtools merge > atac-dig/peaks.1.bed",
+                "cat atac-dig/peaks.*.bed | bedtools sort | bedtools merge > atac-dig/peaks.bed",
+                "zcat reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz | fold -w 80 > atac-dig/genome.fa",
+                "bedtools getfasta -fi atac-dig/genome.fa -bed atac-dig/peaks.bed -fo atac-dig/peaks.fa",
+                "cat atac-dig/peaks.fa | awk '{if($1~/>/)print $1\"\t\"$1\"\t\"$1}' > atac-dig/t2g.txt",
+                "sed -i 's/>//g' atac-dig/t2g.txt",
+                "kallisto index -i atac-dig/index.idx atac-dig/peaks.fa"
+            ]
+        },
+        {
+            "count": [
+                "kb count -i atac-dig/index.idx -g atac-dig/t2g.txt -x 1,8,24:-1,-1,-1:0,0,52,2,0,52 -w ../dogmaseq-dig/ATA-737K-arc-v1_rc.txt -o atac-dig --h5ad -t 16 ../dogmaseq-dig/fastqs/atac_R1-dig.fastq.gz ../dogmaseq-dig/fastqs/atac_R2-dig.fastq.gz ../dogmaseq-dig/fastqs/atac_R3-dig.fastq.gz",
+                "mkdir -p atac-dig/counts_mult",
+                "bustools count -o atac-dig/counts_mult/cells_x_genes -g atac-dig/t2g.txt -e atac-dig/matrix.ec -t atac-dig/transcripts.txt --genecounts --cm atac-dig/output.unfiltered.bus"
+            ]
+        }
+    ]
+}

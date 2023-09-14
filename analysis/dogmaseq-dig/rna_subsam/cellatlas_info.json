@@ -1,0 +1,29 @@
+{
+    "call": "/home/sina/miniconda3/bin/cellatlas build -m rna -o rna_subsam -s spec_joint_subsam.yaml -fa reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz -fb tag_0419_feature_barcodes.txt -g reference/Homo_sapiens.GRCh38.110.gtf.gz fastqs/rna_R1-dig_subsam.fastq.gz fastqs/rna_R2-dig_subsam.fastq.gz",
+    "start_time": "Thu Sep 14 13:58:55 2023 ",
+    "fastqs": [
+        {
+            "file": "fastqs/rna_R1-dig_subsam.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/rna_R2-dig_subsam.fastq.gz",
+            "source": ""
+        }
+    ],
+    "seqspec": "spec_joint_subsam.yaml",
+    "genome_fasta": "reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+    "genome_gtf": "reference/Homo_sapiens.GRCh38.110.gtf.gz",
+    "commands": [
+        {
+            "ref": [
+                "kb ref -i rna_subsam/index.idx -g rna_subsam/t2g.txt -f1 rna_subsam/transcriptome.fa reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz reference/Homo_sapiens.GRCh38.110.gtf.gz"
+            ]
+        },
+        {
+            "count": [
+                "kb count -i rna_subsam/index.idx -g rna_subsam/t2g.txt -x 0,0,16:0,16,28:1,0,102 -w RNA-737K-arc-v1.txt -o rna_subsam --h5ad -t 2 fastqs/rna_R1-dig_subsam.fastq.gz fastqs/rna_R2-dig_subsam.fastq.gz"
+            ]
+        }
+    ]
+}

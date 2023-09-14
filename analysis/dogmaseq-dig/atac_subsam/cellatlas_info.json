@@ -1,0 +1,46 @@
+{
+    "call": "/home/sina/miniconda3/bin/cellatlas build -m atac -o atac_subsam -s spec_joint_subsam.yaml -fa reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz -fb  -g reference/Homo_sapiens.GRCh38.110.gtf.gz fastqs/atac_R1-dig_subsam.fastq.gz fastqs/atac_R2-dig_subsam.fastq.gz fastqs/atac_R3-dig_subsam.fastq.gz",
+    "start_time": "Mon Sep 11 07:52:34 2023 ",
+    "fastqs": [
+        {
+            "file": "fastqs/atac_R1-dig_subsam.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/atac_R2-dig_subsam.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/atac_R3-dig_subsam.fastq.gz",
+            "source": ""
+        }
+    ],
+    "seqspec": "spec_joint_subsam.yaml",
+    "genome_fasta": "reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+    "genome_gtf": "reference/Homo_sapiens.GRCh38.110.gtf.gz",
+    "commands": [
+        {
+            "ref": [
+                "minimap2 -d atac_subsam/ref.mmi reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+                "minimap2 -o atac_subsam/genome.0.sam -a -x sr -t 32 atac_subsam/ref.mmi fastqs/atac_R1-dig_subsam.fastq.gz fastqs/atac_R3-dig_subsam.fastq.gz",
+                "samtools view -@ 8 -o atac_subsam/genome.u.0.bam -b atac_subsam/genome.0.sam",
+                "samtools sort -@ 8 -o atac_subsam/genome.0.bam -n -m 8G atac_subsam/genome.u.0.bam",
+                "Genrich -t atac_subsam/genome.0.bam -o atac_subsam/genome.0.bed -f atac_subsam/genome_peaks.0.log -v",
+                "cat atac_subsam/genome.0.bed | bedtools sort | bedtools merge > atac_subsam/peaks.0.bed",
+                "cat atac_subsam/peaks.*.bed | bedtools sort | bedtools merge > atac_subsam/peaks.bed",
+                "zcat reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz | fold -w 80 > atac_subsam/genome.fa",
+                "bedtools getfasta -fi atac_subsam/genome.fa -bed atac_subsam/peaks.bed -fo atac_subsam/peaks.fa",
+                "cat atac_subsam/peaks.fa | awk '{if($1~/>/)print $1\"\t\"$1\"\t\"$1}' > atac_subsam/t2g.txt",
+                "sed -i 's/>//g' atac_subsam/t2g.txt",
+                "kallisto index -i atac_subsam/index.idx atac_subsam/peaks.fa"
+            ]
+        },
+        {
+            "count": [
+                "kb count -i atac_subsam/index.idx -g atac_subsam/t2g.txt -x 1,8,24:-1,-1,-1:0,0,52,2,0,52 -w ATA-737K-arc-v1_rc.txt -o atac_subsam --h5ad -t 2 fastqs/atac_R1-dig_subsam.fastq.gz fastqs/atac_R2-dig_subsam.fastq.gz fastqs/atac_R3-dig_subsam.fastq.gz",
+                "mkdir -p atac_subsam/counts_mult",
+                "bustools count -o atac_subsam/counts_mult/cells_x_genes -g atac_subsam/t2g.txt -e atac_subsam/matrix.ec -t atac_subsam/transcripts.txt --genecounts --cm atac_subsam/output.unfiltered.bus"
+            ]
+        }
+    ]
+}

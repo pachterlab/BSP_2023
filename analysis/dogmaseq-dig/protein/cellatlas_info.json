@@ -1,0 +1,37 @@
+{
+    "call": "/home/sina/miniconda3/bin/cellatlas build -m protein -o protein -s spec.yaml spec_rep2.yaml -fa reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz -fb protein_feature_barcodes.txt -g reference/Homo_sapiens.GRCh38.110.gtf.gz fastqs/protein_R1_SRR18677643.fastq.gz fastqs/protein_R2_SRR18677643.fastq.gz fastqs/protein_R1_SRR18677644.fastq.gz fastqs/protein_R2_SRR18677644.fastq.gz",
+    "start_time": "Thu Aug 31 09:14:08 2023 ",
+    "fastqs": [
+        {
+            "file": "fastqs/protein_R1_SRR18677643.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/protein_R2_SRR18677643.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/protein_R1_SRR18677644.fastq.gz",
+            "source": ""
+        },
+        {
+            "file": "fastqs/protein_R2_SRR18677644.fastq.gz",
+            "source": ""
+        }
+    ],
+    "seqspec": "spec.yaml",
+    "genome_fasta": "reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+    "genome_gtf": "reference/Homo_sapiens.GRCh38.110.gtf.gz",
+    "commands": [
+        {
+            "ref": [
+                "kb ref --workflow kite -i protein/index.idx -g protein/t2g.txt -f1 protein/transcriptome.fa protein_feature_barcodes.txt"
+            ]
+        },
+        {
+            "count": [
+                "kb count --workflow kite -i protein/index.idx -g protein/t2g.txt -x 0,0,16:0,16,28:1,0,15 -w RNA-737K-arc-v1.txt -o protein --h5ad -t 2 fastqs/protein_R1_SRR18677643.fastq.gz fastqs/protein_R2_SRR18677643.fastq.gz fastqs/protein_R1_SRR18677644.fastq.gz fastqs/protein_R2_SRR18677644.fastq.gz"
+            ]
+        }
+    ]
+}
